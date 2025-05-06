@@ -76,7 +76,7 @@ Include the code and output of each query in your final report.
 
 You must push your work into a Github repository that includes:
 
-- `docker-compose.yml` + `REDME.md` file that explains your application
+- `docker-compose.yml` + `README.md` file that explains your application
 - `data/` folder with the original dataset
 - Python script for data migration
 - A PDF with the results of the queries and screenshots (e.g. `.count()` output in MongoDB shell or GUI)
