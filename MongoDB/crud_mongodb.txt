@@ -1,0 +1,86 @@
+
+// Create 
+// Insert one document
+db.users.insertOne({ name: "Alice", age: 25 })
+
+// Insert multiple documents
+db.users.insertMany([
+  { name: "Bob", age: 30 },
+  { name: "Charlie", age: 35 }
+])
+
+
+// Read
+// Find all documents
+db.users.find()
+
+// Find with filter
+db.users.find({ age: { $gt: 30 } })
+
+// Find one document
+db.users.findOne({ name: "Alice" })
+
+
+// Update
+// Update one document
+db.users.updateOne({ name: "Alice" }, { $set: { age: 26 } })
+
+// Update multiple documents
+db.users.updateMany({}, { $inc: { age: 1 } })  // Increment age for all users
+
+
+// Delete 
+// Delete one document
+db.users.deleteOne({ name: "Bob" })
+
+// Delete multiple documents
+db.users.deleteMany({ age: { $lt: 30 } })
+
+
+Comparisons
+
+| Operator       | Description                             | Example                                |
+|----------------|-----------------------------------------|----------------------------------------|
+| `$eq`          | Equal to                                | `{ age: { $eq: 25 } }`                 |
+| `$ne`          | Not equal to                            | `{ age: { $ne: 25 } }`                 |
+| `$gt`          | Greater than                            | `{ age: { $gt: 18 } }`                 |
+| `$gte`         | Greater than or equal to                | `{ age: { $gte: 18 } }`                |
+| `$lt`          | Less than                               | `{ age: { $lt: 30 } }`                 |
+| `$lte`         | Less than or equal to                   | `{ age: { $lte: 30 } }`                |
+| `$in`          | In array of values                      | `{ age: { $in: [18, 25, 30] } }`       |
+| `$nin`         | Not in array of values                  | `{ age: { $nin: [18, 25, 30] } }`      |
+
+
+
+Logical 
+
+| Operator       | Description                             | Example                                |
+|----------------|-----------------------------------------|----------------------------------------|
+| `$and`         | Logical AND                             | `{ $and: [{age: {$gt:18}}, {age: {$lt:30}}] }` |
+| `$or`          | Logical OR                              | `{ $or: [{age: {$lt:18}}, {age: {$gt:65}}] }` |
+| `$not`         | Negate a condition                      | `{ age: { $not: { $gt: 18 } } }`       |
+| `$nor`         | None of the conditions are true         | `{ $nor: [{age: {$gt:18}}, {name: "Alice"}] }` |
+
+Element
+| Operator       | Description                             | Example                                |
+|----------------|-----------------------------------------|----------------------------------------|
+| `$exists`      | Field exists or not                     | `{ email: { $exists: true } }`         |
+| `$type`        | Field is of specific BSON type          | `{ age: { $type: "int" } }`            |
+
+Array 
+| Operator       | Description                             | Example                                |
+|----------------|-----------------------------------------|----------------------------------------|
+| `$all`         | All elements in the array               | `{ tags: { $all: ["news", "tech"] } }` |
+| `$elemMatch`   | Match one element that satisfies all    | `{ scores: { $elemMatch: { $gt: 80, $lt: 90 } } }` |
+| `$size`        | Array with a specific number of elements| `{ tags: { $size: 3 } }`               |
+
+Evaluation
+| Operator       | Description                             | Example                                |
+|----------------|-----------------------------------------|----------------------------------------|
+| `$regex`       | Regular expression matching             | `{ name: { $regex: "^A" } }`           |
+| `$expr`        | Use aggregation expressions in queries  | `{ $expr: { $gt: ["$spent", "$budget"] } }` |
+| `$mod`         | Modulo operation                        | `{ age: { $mod: [5, 0] } }`            |
+| `$text`        | Full-text search                        | `{ $text: { $search: "mongodb" } }`    |
+
+
+
