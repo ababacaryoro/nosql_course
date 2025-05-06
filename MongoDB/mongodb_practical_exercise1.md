@@ -74,14 +74,11 @@ Include the code and output of each query in your final report.
 
 ## ✅ Deliverables
 
-You must submit the following in a `.zip` file named:  
-`Surname_Lastname_MongoDB_Exercise1.zip`
+You must push your work into a Github repository that includes:
 
-Contents should include:
-
-- `docker-compose.yml` + `.env` file
+- `docker-compose.yml` + `REDME.md` file that explains your application
 - `data/` folder with the original dataset
 - Python script for data migration
 - A PDF with the results of the queries and screenshots (e.g. `.count()` output in MongoDB shell or GUI)
 
-📧 Send your completed work to: **yoroba93@gmail.com**
+📧 Send the link to your Github repository to: **yoroba93@gmail.com**

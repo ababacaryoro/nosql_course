@@ -109,3 +109,14 @@ To stop everything:
 ```bash
 docker-compose down
 ```
+
+## ✅ Deliverables
+
+You must push your work into a Github repository that includes:
+
+- `docker-compose.yml` + `REDME.md` file that explains your application
+- `data/` folder with the original dataset
+- Python script for interaction with Redis database
+- A PDF with the results of the queries
+
+📧 Send the link to your Github repository to: **yoroba93@gmail.com**
