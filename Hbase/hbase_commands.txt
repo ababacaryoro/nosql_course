@@ -1,0 +1,384 @@
+
+
+
+# Create a namespace
+create_namespace 'my_namespace'
+
+# List namespaces
+list_namespace
+
+# Describe a namespace
+describe_namespace 'my_namespace'
+
+# Drop a namespace (must be empty)
+drop_namespace 'my_namespace'
+
+
+
+
+
+
+
+
+# Create a table
+create 'my_namespace:my_table', 'column_family1', 'column_family2'
+
+# List all tables
+list
+
+# Describe a table
+describe 'my_namespace:my_table'
+
+# Disable a table (required before deletion)
+disable 'my_namespace:my_table'
+
+# Drop a table
+drop 'my_namespace:my_table'
+
+
+
+
+# Insert data (put)
+put 'my_namespace:my_table', 'row1', 'column_family1:column1', 'value1'
+
+# Read data (get)
+get 'my_namespace:my_table', 'row1'
+
+# Scan table
+scan 'my_namespace:my_table'
+
+# Delete a cell
+delete 'my_namespace:my_table', 'row1', 'column_family1:column1'
+
+# Delete an entire row
+deleteall 'my_namespace:my_table', 'row1'
+
+
+
+
+
+# Basic table creation
+create 'table_name', 'column_family1'
+
+# Multiple column families
+create 'users', 'personal', 'contact', 'preferences'
+
+# With configuration options
+create 'logs', {NAME => 'data', VERSIONS => 5, TTL => 2592000}
+
+
+
+
+# Basic put operation
+put 'table_name', 'row_key', 'column_family:column', 'value'
+
+# Example with real data
+put 'users', 'user001', 'personal:name', 'John Doe'
+put 'users', 'user001', 'personal:age', '30'
+put 'users', 'user001', 'contact:email', 'john@example.com'
+
+# Put with timestamp
+put 'users', 'user001', 'personal:name', 'John Smith', 1234567890
+
+
+
+# Get entire row
+get 'table_name', 'row_key'
+
+# Get specific column
+get 'users', 'user001', 'personal:name'
+
+# Get column family
+get 'users', 'user001', 'personal'
+
+# Get with timestamp
+get 'users', 'user001', {TIMESTAMP => 1234567890}
+
+# Get specific versions
+get 'users', 'user001', {COLUMN => 'personal:name', VERSIONS => 3}
+
+
+# Scan entire table
+scan 'table_name'
+
+# Scan with row key range
+scan 'users', {STARTROW => 'user001', STOPROW => 'user999'}
+
+# Scan specific column family
+scan 'users', {COLUMNS => 'personal'}
+
+# Scan with filter
+scan 'users', {FILTER => "ValueFilter(=, 'binary:John')"}
+
+# Limit results
+scan 'users', {LIMIT => 10}
+
+# Scan with time range
+scan 'users', {TIMERANGE => [1234567890, 1234567999]}
+
+
+# Delete specific cell
+delete 'table_name', 'row_key', 'column_family:column'
+
+# Delete column family
+delete 'users', 'user001', 'personal'
+
+# Delete entire row
+deleteall 'table_name', 'row_key'
+
+# Delete with timestamp
+delete 'users', 'user001', 'personal:name', 1234567890
+
+
+
+
+# Value filter
+scan 'users', {FILTER => "ValueFilter(=, 'binary:30')"}
+
+# Row key filter
+scan 'users', {FILTER => "RowFilter(=, 'regexstring:user00[1-5]')"}
+
+# Column prefix filter
+scan 'users', {FILTER => "ColumnPrefixFilter('age')"}
+
+# Multiple filters
+scan 'users', {COLUMNS=>['personal:name'], FILTER => "RowFilter(=, 'regexstring:user.*') AND ValueFilter(=, 'binary:John')"}
+
+scan 'users', {FILTER => "RowFilter(=, 'regexstring:user.*') AND ValueFilter(=, 'binaryprefix:John')"}
+
+# Single column value filter
+scan 'users', {FILTER => "SingleColumnValueFilter('personal', 'age', >=, 'binary:25')"}
+
+
+# Count rows in table
+count 'table_name'
+
+# Count with caching for better performance
+count 'users', CACHE => 1000
+
+
+
+########################################################################################################################################################
+
+Complete HBase Filters Reference
+Row-Based Filters
+RowFilter
+Filters rows based on row key patterns.
+bash# Exact row key match
+scan 'users', {FILTER => "RowFilter(=, 'binary:user001')"}
+
+# Row key starts with prefix
+scan 'users', {FILTER => "RowFilter(=, 'binaryprefix:user')"}
+
+# Regex pattern matching
+scan 'users', {FILTER => "RowFilter(=, 'regexstring:user00[1-5]')"}
+
+# Greater than comparison
+scan 'users', {FILTER => "RowFilter(>, 'binary:user100')"}
+
+# Less than or equal
+scan 'users', {FILTER => "RowFilter(<=, 'binary:user500')"}
+
+# Not equal
+scan 'users', {FILTER => "RowFilter(!=, 'binary:user001')"}
+PrefixFilter
+Filters rows by row key prefix (more efficient than RowFilter with prefix).
+bash# Rows starting with specific prefix
+scan 'users', {FILTER => "PrefixFilter('user')"}
+
+# Multiple character prefix
+scan 'logs', {FILTER => "PrefixFilter('error_2024')"}
+
+# Numeric prefix
+scan 'transactions', {FILTER => "PrefixFilter('2024')"}
+KeyOnlyFilter
+Returns only row keys and column names, not values (useful for structure analysis).
+bash# Show table structure without data
+scan 'users', {FILTER => "KeyOnlyFilter()"}
+
+# Combined with other filters
+scan 'users', {FILTER => "PrefixFilter('admin') AND KeyOnlyFilter()"}
+Column-Based Filters
+ColumnPrefixFilter
+Filters columns by column qualifier prefix.
+bash# Columns starting with 'addr'
+scan 'users', {FILTER => "ColumnPrefixFilter('addr')"}
+
+# Temporal columns (e.g., columns like 'temp_2024_01')
+scan 'metrics', {FILTER => "ColumnPrefixFilter('temp_')"}
+MultipleColumnPrefixFilter
+Matches multiple column prefixes.
+bash# Multiple prefixes
+scan 'users', {FILTER => "MultipleColumnPrefixFilter('name', 'email', 'phone')"}
+
+# Different data types
+scan 'products', {FILTER => "MultipleColumnPrefixFilter('price', 'desc', 'cat')"}
+ColumnRangeFilter
+Filters columns within a range of qualifiers.
+bash# Column range (inclusive start, exclusive end)
+scan 'users', {FILTER => "ColumnRangeFilter('email', true, 'phone', false)"}
+
+# All columns from a starting point
+scan 'metrics', {FILTER => "ColumnRangeFilter('temp_2024_01', true, null, false)"}
+QualifierFilter
+Filters based on column qualifier patterns.
+bash# Exact qualifier match
+scan 'users', {FILTER => "QualifierFilter(=, 'binary:email')"}
+
+# Regex qualifier matching
+scan 'users', {FILTER => "QualifierFilter(=, 'regexstring:.*_temp')"}
+
+# Greater than comparison
+scan 'metrics', {FILTER => "QualifierFilter(>, 'binary:metric_100')"}
+Value-Based Filters
+ValueFilter
+Filters based on cell values.
+bash# Exact value match
+scan 'users', {FILTER => "ValueFilter(=, 'binary:admin')"}
+
+# Substring matching
+scan 'users', {FILTER => "ValueFilter(=, 'substring:gmail')"}
+
+# Regex value matching
+scan 'users', {FILTER => "ValueFilter(=, 'regexstring:.*@company\\.com')"}
+
+# Numeric comparisons (treating values as strings)
+scan 'products', {FILTER => "ValueFilter(>, 'binary:1000')"}
+
+# Not equal
+scan 'users', {FILTER => "ValueFilter(!=, 'binary:inactive')"}
+SingleColumnValueFilter
+Filters rows based on a specific column's value.
+bash# Basic single column filter
+scan 'users', {FILTER => "SingleColumnValueFilter('personal', 'age', >=, 'binary:25')"}
+
+# String comparison
+scan 'users', {FILTER => "SingleColumnValueFilter('personal', 'status', =, 'binary:active')"}
+
+# With regex
+scan 'users', {FILTER => "SingleColumnValueFilter('contact', 'email', =, 'regexstring:.*@gmail\\.com')"}
+
+# Filter missing values (exclude rows without the column)
+scan 'users', {FILTER => "SingleColumnValueFilter('personal', 'age', >=, 'binary:18', true, false)"}
+
+# Include rows even if column is missing
+scan 'users', {FILTER => "SingleColumnValueFilter('personal', 'vip', =, 'binary:true', false, true)"}
+SingleColumnValueExcludeFilter
+Like SingleColumnValueFilter but excludes the filtering column from results.
+bash# Filter by age but don't return age column
+scan 'users', {FILTER => "SingleColumnValueExcludeFilter('personal', 'age', >=, 'binary:25')"}
+
+# Filter by internal status but don't expose it
+scan 'products', {FILTER => "SingleColumnValueExcludeFilter('internal', 'approved', =, 'binary:true')"}
+Family-Based Filters
+FamilyFilter
+Filters based on column family names.
+bash# Exact family match
+scan 'users', {FILTER => "FamilyFilter(=, 'binary:personal')"}
+
+# Regex family matching
+scan 'logs', {FILTER => "FamilyFilter(=, 'regexstring:error_.*')"}
+
+# Not equal to family
+scan 'users', {FILTER => "FamilyFilter(!=, 'binary:internal')"}
+Utility Filters
+FirstKeyOnlyFilter
+Returns only the first column from each row (useful for counting).
+bash# Count rows efficiently
+scan 'users', {FILTER => "FirstKeyOnlyFilter()"}
+
+# Combined with other filters for conditional counting
+scan 'users', {FILTER => "PrefixFilter('admin') AND FirstKeyOnlyFilter()"}
+RandomRowFilter
+Randomly samples rows (useful for data sampling).
+bash# Sample approximately 10% of rows
+scan 'users', {FILTER => "RandomRowFilter(0.1)"}
+
+# Sample 1% for large datasets
+scan 'big_table', {FILTER => "RandomRowFilter(0.01)"}
+InclusiveStopFilter
+Includes the stop row in scan results.
+bash# Include the stop row (normally excluded)
+scan 'users', {STARTROW => 'user001', STOPROW => 'user100', FILTER => "InclusiveStopFilter()"}
+WhileMatchFilter
+Stops scanning when filter condition is no longer met.
+bash# Stop when prefix no longer matches
+scan 'users', {FILTER => "WhileMatchFilter(PrefixFilter('admin'))"}
+
+# Stop when value condition fails
+scan 'products', {FILTER => "WhileMatchFilter(ValueFilter(>, 'binary:100'))"}
+SkipFilter
+Skips entire rows when filter doesn't match (vs filtering individual cells).
+bash# Skip entire row if any cell doesn't match
+scan 'users', {FILTER => "SkipFilter(ValueFilter(=, 'binary:active'))"}
+Timestamp and Version Filters
+TimestampsFilter
+Filters by specific timestamps.
+bash# Specific timestamps (in Java, you'd pass List<Long>)
+# Note: Shell syntax is limited for this filter
+scan 'users', {FILTER => "TimestampsFilter(1234567890, 1234567900)"}
+ColumnCountGetFilter
+Limits the number of columns returned per row.
+bash# Return only first 3 columns per row
+scan 'users', {FILTER => "ColumnCountGetFilter(3)"}
+
+# Useful for wide rows
+scan 'metrics', {FILTER => "ColumnCountGetFilter(10)"}
+PageFilter
+Limits the number of rows returned (pagination).
+bash# Return only 10 rows
+scan 'users', {FILTER => "PageFilter(10)"}
+
+# Combined with other filters
+scan 'users', {FILTER => "PrefixFilter('admin') AND PageFilter(5)"}
+Complex Filter Combinations
+FilterList (AND Logic)
+bash# Multiple conditions must be true
+scan 'users', {FILTER => "FilterList(MUST_PASS_ALL, PrefixFilter('user'), ValueFilter(=, 'binary:active'))"}
+
+# Age and status filter
+scan 'users', {FILTER => "FilterList(MUST_PASS_ALL, SingleColumnValueFilter('personal', 'age', >=, 'binary:18'), SingleColumnValueFilter('personal', 'status', =, 'binary:verified'))"}
+FilterList (OR Logic)
+bash# Any condition can be true
+scan 'users', {FILTER => "FilterList(MUST_PASS_ONE, PrefixFilter('admin'), PrefixFilter('super'))"}
+
+# Multiple value options
+scan 'products', {FILTER => "FilterList(MUST_PASS_ONE, ValueFilter(=, 'binary:electronics'), ValueFilter(=, 'binary:computers'))"}
+Nested FilterLists
+bash# Complex nested logic: (admin OR super) AND active
+scan 'users', {FILTER => "FilterList(MUST_PASS_ALL, FilterList(MUST_PASS_ONE, PrefixFilter('admin'), PrefixFilter('super')), ValueFilter(=, 'binary:active'))"}
+Practical Use Case Examples
+E-commerce Product Filtering
+bash# Products in electronics category with price > $100
+scan 'products', {FILTER => "FilterList(MUST_PASS_ALL, SingleColumnValueFilter('info', 'category', =, 'binary:electronics'), SingleColumnValueFilter('info', 'price', >, 'binary:100'))"}
+
+# In-stock products only
+scan 'products', {FILTER => "SingleColumnValueFilter('inventory', 'quantity', >, 'binary:0')"}
+User Management
+bash# Active users from specific domain
+scan 'users', {FILTER => "FilterList(MUST_PASS_ALL, SingleColumnValueFilter('status', 'active', =, 'binary:true'), ValueFilter(=, 'regexstring:.*@company\\.com'))"}
+
+# Recently registered users (assuming row key contains timestamp)
+scan 'users', {FILTER => "RowFilter(>, 'binary:user_2024')"}
+Log Analysis
+bash# Error logs from last hour (assuming timestamp in row key)
+scan 'logs', {FILTER => "FilterList(MUST_PASS_ALL, PrefixFilter('error'), RowFilter(>, 'binary:error_2024010112'))"}
+
+# Critical severity logs only
+scan 'logs', {FILTER => "SingleColumnValueFilter('details', 'severity', =, 'binary:critical')"}
+Time Series Data
+bash# Temperature readings above threshold
+scan 'sensors', {FILTER => "SingleColumnValueFilter('readings', 'temperature', >, 'binary:25.0')"}
+
+# Data from specific sensor with recent timestamps
+scan 'sensors', {FILTER => "FilterList(MUST_PASS_ALL, PrefixFilter('sensor_001'), RowFilter(>, 'binary:sensor_001_1640000000'))"}
+Performance Optimization Examples
+bash# Efficient counting with minimal data transfer
+scan 'large_table', {FILTER => "FilterList(MUST_PASS_ALL, PrefixFilter('active'), FirstKeyOnlyFilter(), KeyOnlyFilter())"}
+
+# Sample data for analysis
+scan 'huge_dataset', {FILTER => "FilterList(MUST_PASS_ALL, RandomRowFilter(0.01), ColumnCountGetFilter(5))"}
+
+# Paginated results with filtering
+scan 'users', {FILTER => "FilterList(MUST_PASS_ALL, ValueFilter(=, 'binary:active'), PageFilter(100))"}
+
